@@ -23,7 +23,7 @@ public class UndoImpl implements UndoService {
 
 	private int numberOfActions;
 	private GridStatisticsImpl statistics;
-	
+
 	private boolean enabled = true;
 	private boolean disabledNext = false;
 	private boolean undoOperation = false;
@@ -159,6 +159,15 @@ public class UndoImpl implements UndoService {
 		checkArgument(numberOfActions > 0, "Number of actions must be greater than zero!");
 		this.numberOfActions = numberOfActions;
 		this.disabledNext = true;
+	}
+
+	@Override
+	public void reset()
+	{
+		events.clear();
+		enabled = true;
+		disabledNext = false;
+		undoOperation = false;
 	}
 
 }

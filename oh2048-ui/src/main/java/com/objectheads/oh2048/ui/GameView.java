@@ -39,14 +39,11 @@ public class GameView extends AnchorPane {
 			final FXMLLoader loader = new FXMLLoader();
 			final Parent parent = (Parent)loader.load(getClass().getResourceAsStream("/game-main.fxml"));
 			scene = new Scene(parent);
-
 			stage.setTitle("2048");
 			stage.setScene(scene);
 			stage.show();
-
 			final Pane gameBoard = (Pane)scene.lookup("#gamePane");
 			gameBoard.getChildren().add(boardView);
-
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
@@ -113,6 +110,11 @@ public class GameView extends AnchorPane {
 			return true;
 		}
 		return false;
+	}
+
+	public void reset()
+	{
+		boardView.reset();
 	}
 
 }

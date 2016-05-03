@@ -6,6 +6,7 @@ import static com.objectheads.oh2048.Constants.SCREEN_WIDTH;
 import static com.objectheads.oh2048.Constants.TRANSITION_SPEED;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,7 +14,9 @@ import com.objectheads.oh2048.Constants;
 import com.objectheads.oh2048.grid.GridPosition;
 import com.objectheads.oh2048.grid.Tile;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
@@ -39,14 +42,12 @@ public class BoardView extends AnchorPane {
 
 		setMinWidth(SCREEN_WIDTH);
 		setMinHeight(SCREEN_HEIGHT);
-		
+
 		initialize();
 	}
 
 	public void initialize()
 	{
-		nodeMap.clear();
-		getChildren().clear();
 		setupGrid();
 	}
 
@@ -87,7 +88,6 @@ public class BoardView extends AnchorPane {
 		nodeMap.put(tileId, node);
 		getChildren().add(node);
 	}
-
 
 	public void createTileNode(final Tile tile, final GridPosition destinationPosition)
 	{
@@ -132,7 +132,6 @@ public class BoardView extends AnchorPane {
 
 		final GridPosition destinationPosition = coordinateConverter.getWordPosition(destinationGridPosition);
 		final TranslateTransition tt = new TranslateTransition(Duration.millis(TRANSITION_SPEED), node);
-
 		tt.setToX(destinationPosition.getColumn() - node.getLayoutX());
 		tt.setToY(destinationPosition.getRow() - node.getLayoutY());
 		tt.play();
@@ -157,6 +156,30 @@ public class BoardView extends AnchorPane {
 		st.play();
 
 		showTileNode(tileId, node);
+	}
+
+	public void reset()
+	{
+		for (final Entry<UUID, Node> entry : nodeMap.entrySet()) {
+			final Node node = entry.getValue();
+
+			final ParallelTransition pt = new ParallelTransition();
+
+			final Duration duration = Duration.millis(TRANSITION_SPEED);
+			final TranslateTransition tt = new TranslateTransition(duration, node);
+			tt.setToY(200);
+			tt.play();
+			tt.setInterpolator(Interpolator.EASE_OUT);
+			tt.setOnFinished(e -> getChildren().remove(node));
+
+			final FadeTransition ft = new FadeTransition(duration, node);
+			ft.setToValue(0);
+
+			pt.getChildren().addAll(tt, ft);
+			pt.play();
+
+		}
+		nodeMap.clear();
 	}
 
 }

@@ -11,9 +11,9 @@ public class Game {
 	public Game(final Stage stage)
 	{
 		view = new GameView(stage);
-		// model = new GameModel(view);
+		model = new GameModel(view);
 		// model = new GameModel(view, new FillBoardInitializer());
-		model = new GameModel(view, new TwoTilesInitializer());
+		// model = new GameModel(view, new TwoTilesInitializer());
 		controller = new GameController(model);
 		stage.getScene().setOnKeyPressed(p -> controller.onKeyPressed(p));
 	}

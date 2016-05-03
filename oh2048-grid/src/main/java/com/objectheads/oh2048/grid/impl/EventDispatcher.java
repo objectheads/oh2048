@@ -10,6 +10,7 @@ import com.objectheads.oh2048.grid.event.MoveTileEvent;
 import com.objectheads.oh2048.grid.event.NewDescendantTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NewTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NoMoreStepsEvent;
+import com.objectheads.oh2048.grid.event.ResetEvent;
 import com.objectheads.oh2048.grid.event.ScoreIncreasedEvent;
 import com.objectheads.oh2048.grid.event.TargetReachedEvent;
 
@@ -18,6 +19,7 @@ public class EventDispatcher implements GridEvent {
 	private final UndoService undo;
 
 	private EventHandler<? super MoveEvent> moveEventHandler;
+	private EventHandler<? super ResetEvent> resetEventHandler;
 	private EventHandler<? super MoveTileEvent> moveTileEventHandler;
 	private EventHandler<? super DeleteTileEvent> deleteTileEventHandler;
 	private EventHandler<? super NoMoreStepsEvent> noMoreStepsEventHandler;
@@ -79,6 +81,12 @@ public class EventDispatcher implements GridEvent {
 		this.targetReachedEventHandler = handler;
 	}
 
+	@Override
+	public void setOnResetEvent(EventHandler<? super ResetEvent> handler)
+	{
+		this.resetEventHandler = handler;
+	}
+
 	public void fire(final Event event)
 	{
 
@@ -125,6 +133,11 @@ public class EventDispatcher implements GridEvent {
 
 		if (event instanceof TargetReachedEvent) {
 			fireTargetReachedEvent((TargetReachedEvent)event);
+			return;
+		}
+
+		if (event instanceof ResetEvent) {
+			fireResetEvent((ResetEvent)event);
 			return;
 		}
 
@@ -190,6 +203,13 @@ public class EventDispatcher implements GridEvent {
 	{
 		if (targetReachedEventHandler != null) {
 			targetReachedEventHandler.handle(event);
+		}
+	}
+
+	private void fireResetEvent(final ResetEvent event)
+	{
+		if (resetEventHandler != null) {
+			resetEventHandler.handle(event);
 		}
 	}
 

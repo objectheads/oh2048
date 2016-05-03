@@ -6,7 +6,7 @@ public class GridToString {
 
 	public static String getGridAsString(final GridImpl grid)
 	{
-		final int M = grid.getBoardDimension();
+		final int M = grid.getGridSize();
 		final Tile[][] matrix = grid.getMatrix();
 		final StringBuilder sb = new StringBuilder();
 		final int maxTileValueLength = Integer.toString(grid.getGridStatistics().getMaxTileValue()).length();

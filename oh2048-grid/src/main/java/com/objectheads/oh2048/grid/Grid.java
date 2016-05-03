@@ -2,7 +2,7 @@ package com.objectheads.oh2048.grid;
 
 public interface Grid {
 
-	void initialize();
+	void reset();
 
 	void add(int row, int column, int value);
 	
@@ -14,7 +14,7 @@ public interface Grid {
 
 	void addRandom();
 
-	int getBoardDimension();
+	int getGridSize();
 
 	GridEvent getGridEvent();
 

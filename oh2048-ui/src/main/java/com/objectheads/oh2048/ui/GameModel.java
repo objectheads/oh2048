@@ -12,6 +12,7 @@ import com.objectheads.oh2048.grid.event.MoveTileEvent;
 import com.objectheads.oh2048.grid.event.NewDescendantTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NewTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NoMoreStepsEvent;
+import com.objectheads.oh2048.grid.event.ResetEvent;
 import com.objectheads.oh2048.grid.event.ScoreIncreasedEvent;
 import com.objectheads.oh2048.grid.event.TargetReachedEvent;
 
@@ -58,20 +59,26 @@ public class GameModel {
 		gridEvents.setOnMove(e -> handleMoveEventEvent(e));
 		gridEvents.setOnScoreIncreased(e -> handleScoreIncreasedEvent(e));
 		gridEvents.setOnTargetReached(e -> handleTargetReachedEvent(e));
+		gridEvents.setOnResetEvent(e -> handleResetEvent(e));
 	}
 
 	public void initialize()
 	{
-		grid.initialize();
 		view.initialize();
 		gameInitializer.initializeBoard(grid);
 		view.scoreProperty().bindBidirectional(score);
 	}
 
+	public void reset()
+	{
+		grid.reset();
+		gameInitializer.initializeBoard(grid);
+	}
+
 	public void handleNoMoreSteps(final NoMoreStepsEvent event)
 	{
 		view.gameOver();
-		initialize();
+		grid.reset();
 	}
 
 	public void handleNewTileCreateEvent(final NewTileCreateEvent event)
@@ -115,6 +122,12 @@ public class GameModel {
 		if (newGame) {
 			initialize();
 		}
+	}
+
+	private void handleResetEvent(ResetEvent e)
+	{
+		view.reset();
+		score.set("0");
 	}
 
 	public Grid getGrid()

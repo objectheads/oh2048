@@ -16,42 +16,41 @@ import com.objectheads.oh2048.grid.event.Event;
 
 public class GridImpl implements Grid {
 
-	private final int M;
+	private final GridConfig config;
 	private final UndoService undo;
 	private final GridMovement movement;
 	private final VirtualMatrix virtualMatrix;
 	private final GridStatisticsImpl statistics;
 	private final EventDispatcher eventDispatcher;
 
-	private boolean win;
-	private Random random;
-	private Tile[][] matrix;
-	private final int targetScore;
+	private final Random random;
 
-	public GridImpl(final int M, final boolean disableUndo, final int targetScore)
+	public GridImpl(final int gridSize, final boolean disableUndo, final int targetScore)
 	{
-		this.M = M;
+		this.config = new GridConfig(gridSize, targetScore, disableUndo);
 		this.movement = new MovementImpl(this);
 		this.statistics = new GridStatisticsImpl(this);
-		this.undo = disableUndo ? new NoUndoImpl() : new UndoImpl(this, statistics);
+		this.undo = config.isDisableUndo() ? new NoUndoImpl() : new UndoImpl(this, statistics);
 		this.eventDispatcher = new EventDispatcher(undo);
 		this.virtualMatrix = new VirtualMatrix(this, statistics);
-		this.targetScore = targetScore;
-		initialize();
-	}
-
-	@Override
-	public int getBoardDimension()
-	{
-		return M;
-	}
-
-	@Override
-	public void initialize()
-	{
-		win = false;
-		matrix = new Tile[M][M];
 		random = new Random(System.currentTimeMillis());
+		reset();
+	}
+
+	@Override
+	public int getGridSize()
+	{
+		return config.getGridSize();
+	}
+
+	@Override
+	public void reset()
+	{
+		statistics.reset();
+		undo.reset();
+		virtualMatrix.reset();
+		final EventBuilder eventBuilder = EventBuilder.create().addResetEvent();
+		eventDispatcher.fire(eventBuilder.build());
 	}
 
 	@Override
@@ -120,13 +119,13 @@ public class GridImpl implements Grid {
 	}
 
 	@Override
-	public void add(GridPosition gridPosition, int value)
+	public void add(final GridPosition gridPosition, final int value)
 	{
 		add(gridPosition, new Tile(value));
 	}
 
 	@Override
-	public void add(int row, int column, int value)
+	public void add(final int row, final int column, final int value)
 	{
 		add(new GridPosition(row, column), new Tile(value));
 	}
@@ -151,8 +150,8 @@ public class GridImpl implements Grid {
 
 	private void checkAndFireTargetReached(final EventBuilder eventBuilder)
 	{
-		if (statistics.getMaxTileValue() >= targetScore && !win) {
-			win = true;
+		if (statistics.getMaxTileValue() >= config.getTargetScore() && !statistics.isTargetReached()) {
+			statistics.setTargetReached(true);
 			eventBuilder.addTargetReachedEvent(statistics.getMaxTileValue(), statistics.getMaxTileValue());
 		}
 	}
@@ -178,7 +177,7 @@ public class GridImpl implements Grid {
 
 	private void doMovements(final MoveDirection direction, final EventBuilder eventBuilder)
 	{
-		for (int row = 0; row < M; row++) {
+		for (int row = 0; row < config.getGridSize(); row++) {
 			processRow(row, direction, eventBuilder);
 		}
 	}
@@ -199,7 +198,7 @@ public class GridImpl implements Grid {
 
 	private void processRow(final int row, final MoveDirection direction, final EventBuilder eventBuilder)
 	{
-		for (int i = 0; i < M; i++) {
+		for (int i = 0; i < config.getGridSize(); i++) {
 			final VirtualPosition virtualPosition = new VirtualPosition(row, i, direction);
 
 			Tile currentTile = virtualMatrix.virtualGet(virtualPosition);
@@ -218,7 +217,7 @@ public class GridImpl implements Grid {
 	{
 		final int targetVirtualRow = targetVirtualPosition.getRow();
 		final MoveDirection direction = targetVirtualPosition.getDirection();
-		for (int j = targetVirtualPosition.getColumn() + 1; j < M; j++) {
+		for (int j = targetVirtualPosition.getColumn() + 1; j < config.getGridSize(); j++) {
 			final VirtualPosition sourceVirtualPosition = new VirtualPosition(targetVirtualRow, j, direction);
 			final Tile sourceTile = virtualMatrix.virtualGet(sourceVirtualPosition);
 			if (sourceTile != null) {
@@ -235,7 +234,7 @@ public class GridImpl implements Grid {
 		final int currentColumn = virtualPosition.getColumn();
 		final MoveDirection direction = virtualPosition.getDirection();
 
-		for (int j = currentColumn + 1; j < M; j++) {
+		for (int j = currentColumn + 1; j < config.getGridSize(); j++) {
 			final VirtualPosition sourceVirtualPosition = new VirtualPosition(currentRow, j, direction);
 			final Tile sourceTile = virtualMatrix.virtualGet(sourceVirtualPosition);
 
@@ -274,7 +273,7 @@ public class GridImpl implements Grid {
 
 	protected Tile[][] getMatrix()
 	{
-		return matrix;
+		return virtualMatrix.getMatrix();
 	}
 
 	public static void main(final String[] args)

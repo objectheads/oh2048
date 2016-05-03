@@ -22,6 +22,8 @@ public class GridStatisticsImpl implements GridStatistics {
 	private int movementsCounter;
 	private int emptyCellCounter;
 
+	private boolean targetReached;
+
 	public GridStatisticsImpl(final GridImpl gridImpl)
 	{
 		this.grid = gridImpl;
@@ -33,7 +35,7 @@ public class GridStatisticsImpl implements GridStatistics {
 		score = 0;
 		maxTileValue = 0;
 		movementsCounter = 0;
-		final int boardDimension = grid.getBoardDimension();
+		final int boardDimension = grid.getGridSize();
 		emptyCellCounter = boardDimension * boardDimension;
 	}
 
@@ -111,7 +113,7 @@ public class GridStatisticsImpl implements GridStatistics {
 	private Collection<? extends MoveDirection> getHorizontalDirections()
 	{
 		final Tile[][] matrix = grid.getMatrix();
-		final int M = grid.getBoardDimension();
+		final int M = grid.getGridSize();
 		for (int i = 0; i < M; i++) {
 			for (int j = 0; j < M - 1; j++) {
 				if (matrix[i][j].getValue() == matrix[i][j + 1].getValue()) {
@@ -125,7 +127,7 @@ public class GridStatisticsImpl implements GridStatistics {
 	private Collection<? extends MoveDirection> getVerticalDirections()
 	{
 		final Tile[][] matrix = grid.getMatrix();
-		final int M = grid.getBoardDimension();
+		final int M = grid.getGridSize();
 		for (int i = 0; i < M; i++) {
 			for (int j = 0; j < M - 1; j++) {
 				if (matrix[j][i].getValue() == matrix[j + 1][i].getValue()) {
@@ -144,11 +146,22 @@ public class GridStatisticsImpl implements GridStatistics {
 	}
 
 	@Override
+	public boolean isTargetReached()
+	{
+		return targetReached;
+	}
+
+	public void setTargetReached(boolean targetReached)
+	{
+		this.targetReached = targetReached;
+	}
+
+	@Override
 	public List<GridPosition> getFreeCellIndecies()
 	{
 
 		final Tile[][] matrix = grid.getMatrix();
-		final int M = grid.getBoardDimension();
+		final int M = grid.getGridSize();
 		final List<GridPosition> indicies = new ArrayList<>();
 		for (int i = 0; i < M; i++) {
 			for (int j = 0; j < M; j++) {

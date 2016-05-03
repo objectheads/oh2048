@@ -6,15 +6,16 @@ import com.objectheads.oh2048.grid.Tile;
 
 public class VirtualMatrix {
 
-	private int M;
-	private GridImpl grid;
-	private GridStatisticsImpl statistics;
+	private final int M;
+	private final GridStatisticsImpl statistics;
 
-	public VirtualMatrix(GridImpl grid, GridStatisticsImpl statistics)
+	private Tile[][] matrix;
+
+	public VirtualMatrix(final GridImpl grid, final GridStatisticsImpl statistics)
 	{
-		this.grid = grid;
+		this.M = grid.getGridSize();
+		matrix = new Tile[M][M];
 		this.statistics = statistics;
-		this.M = grid.getBoardDimension();
 	}
 
 	private GridPosition convertToRealPosition(final VirtualPosition virtualPosition)
@@ -41,7 +42,7 @@ public class VirtualMatrix {
 		final GridPosition matrixPosision = convertToRealPosition(virtualPosition);
 		final int virtualRow = matrixPosision.getRow();
 		final int virtualColumn = matrixPosision.getColumn();
-		return grid.getMatrix()[virtualRow][virtualColumn];
+		return matrix[virtualRow][virtualColumn];
 	}
 
 	public void virtualSet(final GridPosition position, final Tile tile, final EventBuilder eventBuilder)
@@ -58,13 +59,13 @@ public class VirtualMatrix {
 
 		final GridPosition destPos = convertToRealPosition(virtualPosition);
 
-		if (grid.getMatrix()[destPos.getRow()][destPos.getColumn()] != null) {
+		if (matrix[destPos.getRow()][destPos.getColumn()] != null) {
 			throw new IllegalStateException(String.format("Cell is not empty [position=%s]", destPos));
 		}
 
 		final int virtualRow = destPos.getRow();
 		final int virtualColumn = destPos.getColumn();
-		grid.getMatrix()[virtualRow][virtualColumn] = tile;
+		matrix[virtualRow][virtualColumn] = tile;
 		statistics.decreaseEmptyCellCounter();
 		statistics.newTileCrteated(tile.getValue());
 
@@ -77,25 +78,25 @@ public class VirtualMatrix {
 	{
 		final GridPosition srcPos = convertToRealPosition(sourceVirtualPosition);
 		final GridPosition destPos = convertToRealPosition(targetVirtualPosition);
-		final Tile sourceTile = grid.getMatrix()[srcPos.getRow()][srcPos.getColumn()];
+		final Tile sourceTile = matrix[srcPos.getRow()][srcPos.getColumn()];
 
 		checkVirtualMoveParameters(srcPos, destPos);
 
-		grid.getMatrix()[destPos.getRow()][destPos.getColumn()] = sourceTile;
-		grid.getMatrix()[srcPos.getRow()][srcPos.getColumn()] = null;
+		matrix[destPos.getRow()][destPos.getColumn()] = sourceTile;
+		matrix[srcPos.getRow()][srcPos.getColumn()] = null;
 
 		eventBuilder.addMoveTileEvent(sourceTile, srcPos, destPos);
 	}
 
 	private void checkVirtualMoveParameters(final GridPosition sourcePosision, final GridPosition destinationPosision)
 	{
-		if (grid.getMatrix()[sourcePosision.getRow()][sourcePosision.getColumn()] == null) {
+		if (matrix[sourcePosision.getRow()][sourcePosision.getColumn()] == null) {
 			final String message = String.format("Source grid cell must be not null! [sourcePosition=%s]",
 					sourcePosision);
 			throw new IllegalStateException(message);
 		}
 
-		if (grid.getMatrix()[destinationPosision.getRow()][destinationPosision.getColumn()] != null) {
+		if (matrix[destinationPosision.getRow()][destinationPosision.getColumn()] != null) {
 			final String message = String.format("Source grid cell must be null! [destinationPosision=%s]",
 					destinationPosision);
 			throw new IllegalStateException(message);
@@ -107,14 +108,14 @@ public class VirtualMatrix {
 	{
 		final GridPosition sourceMatrixPosition = convertToRealPosition(sourceVirtualPosition);
 		final GridPosition targetMatrixPosition = convertToRealPosition(targetVirtualPosition);
-		final Tile sourceTile = grid.getMatrix()[sourceMatrixPosition.getRow()][sourceMatrixPosition.getColumn()];
-		final Tile targetTile = grid.getMatrix()[targetMatrixPosition.getRow()][targetMatrixPosition.getColumn()];
+		final Tile sourceTile = matrix[sourceMatrixPosition.getRow()][sourceMatrixPosition.getColumn()];
+		final Tile targetTile = matrix[targetMatrixPosition.getRow()][targetMatrixPosition.getColumn()];
 
 		statistics.increaseEmptyCellCounter();
 		checkVirtualJoinParameters(sourceMatrixPosition, targetMatrixPosition);
 
-		grid.getMatrix()[targetMatrixPosition.getRow()][targetMatrixPosition.getColumn()] = childTile;
-		grid.getMatrix()[sourceMatrixPosition.getRow()][sourceMatrixPosition.getColumn()] = null;
+		matrix[targetMatrixPosition.getRow()][targetMatrixPosition.getColumn()] = childTile;
+		matrix[sourceMatrixPosition.getRow()][sourceMatrixPosition.getColumn()] = null;
 
 		eventBuilder.addDeleteTileEvent(targetTile, targetMatrixPosition);
 		eventBuilder.addMoveTileEvent(sourceTile, sourceMatrixPosition, targetMatrixPosition);
@@ -125,15 +126,16 @@ public class VirtualMatrix {
 		statistics.incrementScore(newTileValue, eventBuilder);
 	}
 
-	private void checkVirtualJoinParameters(final GridPosition sourceMatrixPosision, final GridPosition targetMatrixPosision)
+	private void checkVirtualJoinParameters(final GridPosition sourceMatrixPosision,
+			final GridPosition targetMatrixPosision)
 	{
-		if (grid.getMatrix()[sourceMatrixPosision.getRow()][sourceMatrixPosision.getColumn()] == null) {
+		if (matrix[sourceMatrixPosision.getRow()][sourceMatrixPosision.getColumn()] == null) {
 			final String message = String.format("Source grid cell must be not null! [sourceMatrixPosision=%s]",
 					sourceMatrixPosision);
 			throw new IllegalStateException(message);
 		}
 
-		if (grid.getMatrix()[targetMatrixPosision.getRow()][targetMatrixPosision.getColumn()] == null) {
+		if (matrix[targetMatrixPosision.getRow()][targetMatrixPosision.getColumn()] == null) {
 			final String message = String.format("Target grid cell must be not null! [targetMatrixPosision=%s]",
 					targetMatrixPosision);
 			throw new IllegalStateException(message);
@@ -145,9 +147,19 @@ public class VirtualMatrix {
 		final GridPosition virtualPosision = convertToRealPosition(virtualPosition);
 		final int virtualRow = virtualPosision.getRow();
 		final int virtualColumn = virtualPosision.getColumn();
-		final Tile tile = grid.getMatrix()[virtualRow][virtualColumn];
-		grid.getMatrix()[virtualRow][virtualColumn] = null;
+		final Tile tile = matrix[virtualRow][virtualColumn];
+		matrix[virtualRow][virtualColumn] = null;
 		statistics.increaseEmptyCellCounter();
 		eventBuilder.addDeleteTileEvent(tile, virtualPosision);
+	}
+
+	protected Tile[][] getMatrix()
+	{
+		return matrix;
+	}
+
+	public void reset()
+	{
+		matrix = new Tile[M][M];
 	}
 }

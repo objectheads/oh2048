@@ -9,7 +9,7 @@ public class FillBoardInitializer implements GameInitializer {
 	@Override
 	public void initializeBoard(final Grid grid)
 	{
-		int M = grid.getBoardDimension();
+		int M = grid.getGridSize();
 		int counter = 0;
 		for (int i = 0; i < M; i++) {
 			for (int j = 0; j < M; j++) {

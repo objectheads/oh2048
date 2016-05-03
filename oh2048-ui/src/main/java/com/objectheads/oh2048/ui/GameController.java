@@ -42,7 +42,7 @@ public class GameController {
 			model.undo();
 			break;
 		case SPACE:
-			model.initialize();
+			model.reset();
 			break;
 		default:
 			break;

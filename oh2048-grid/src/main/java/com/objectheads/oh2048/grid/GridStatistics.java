@@ -12,6 +12,8 @@ public interface GridStatistics {
 	int getMovementsCounter();
 
 	int getEmptyCellCounter();
+	
+	boolean isTargetReached();
 
 	Set<MoveDirection> getAvailableDirections();
 

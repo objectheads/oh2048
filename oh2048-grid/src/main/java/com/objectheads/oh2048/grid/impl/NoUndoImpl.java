@@ -46,4 +46,10 @@ public class NoUndoImpl implements UndoService {
 		// NOP
 	}
 
+	@Override
+	public void reset()
+	{
+		// NOP
+	}
+
 }

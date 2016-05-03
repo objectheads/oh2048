@@ -10,6 +10,7 @@ import com.objectheads.oh2048.grid.event.MoveTileEvent;
 import com.objectheads.oh2048.grid.event.NewDescendantTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NewTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NoMoreStepsEvent;
+import com.objectheads.oh2048.grid.event.ResetEvent;
 import com.objectheads.oh2048.grid.event.ScoreIncreasedEvent;
 import com.objectheads.oh2048.grid.event.TargetReachedEvent;
 
@@ -105,6 +106,13 @@ public class EventBuilder {
 	public EventBuilder addNewTileCreateEvent(final GridPosition targetPosition, final Tile newTile)
 	{
 		final NewTileCreateEvent event = new NewTileCreateEvent(targetPosition, newTile);
+		add(event);
+		return this;
+	}
+
+	public EventBuilder addResetEvent()
+	{
+		final ResetEvent event = new ResetEvent();
 		add(event);
 		return this;
 	}
