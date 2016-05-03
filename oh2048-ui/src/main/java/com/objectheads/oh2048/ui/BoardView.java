@@ -14,16 +14,10 @@ import com.objectheads.oh2048.Constants;
 import com.objectheads.oh2048.grid.GridPosition;
 import com.objectheads.oh2048.grid.Tile;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.Interpolator;
-import javafx.animation.ParallelTransition;
-import javafx.animation.ScaleTransition;
-import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 public class BoardView extends AnchorPane {
 
@@ -96,16 +90,8 @@ public class BoardView extends AnchorPane {
 		final GridPosition position = coordinateConverter.getWordPosition(destinationPosition);
 		final Node node = new TileNode(tile, position);
 
-		final ScaleTransition st = new ScaleTransition(Duration.millis(TRANSITION_SPEED), node);
-		st.setFromX(0.5f);
-		st.setFromY(0.5f);
-		st.setToX(1f);
-		st.setToY(1f);
-		st.setAutoReverse(false);
-		st.setCycleCount(1);
-
+		TransitionBuilder.createParallel().addScale(0.5f, 0.5f, 1f, 1f, 1, false, node).build().play();
 		showTileNode(tileId, node);
-		st.play();
 	}
 
 	public void deleteTileNode(final Tile tile)
@@ -113,16 +99,9 @@ public class BoardView extends AnchorPane {
 		final UUID tileId = tile.getId();
 		final Node node = nodeMap.get(tileId);
 		nodeMap.remove(tileId);
+		TransitionBuilder.createParallel().addScale(1f, 1f, 1.2f, 1.2f, 1, false, node, e -> getChildren().remove(node))
+				.build().play();
 
-		final ScaleTransition st = new ScaleTransition(Duration.millis(TRANSITION_SPEED), node);
-		st.setFromX(1f);
-		st.setFromY(1f);
-		st.setToX(1.1f);
-		st.setToY(1.1f);
-		st.setAutoReverse(false);
-		st.setCycleCount(1);
-		st.setOnFinished(e -> getChildren().remove(node));
-		st.play();
 	}
 
 	public void moveTileNode(final Tile tile, final GridPosition destinationGridPosition)
@@ -131,29 +110,20 @@ public class BoardView extends AnchorPane {
 		final Node node = nodeMap.get(tileId);
 
 		final GridPosition destinationPosition = coordinateConverter.getWordPosition(destinationGridPosition);
-		final TranslateTransition tt = new TranslateTransition(Duration.millis(TRANSITION_SPEED), node);
-		tt.setToX(destinationPosition.getColumn() - node.getLayoutX());
-		tt.setToY(destinationPosition.getRow() - node.getLayoutY());
-		tt.play();
-		tt.setInterpolator(Interpolator.EASE_OUT);
-		tt.play();
+		final double toX = destinationPosition.getColumn() - node.getLayoutX();
+		final double toY = destinationPosition.getRow() - node.getLayoutY();
+		TransitionBuilder.createParallel().setDuration(TRANSITION_SPEED).addTranslate(toX, toY, node).build().play();
+
 	}
 
 	public void createDescendantTileNode(final Tile tile, final GridPosition destinationPosition)
 	{
 		final UUID tileId = tile.getId();
-
 		final GridPosition position = coordinateConverter.getWordPosition(destinationPosition);
 		final Node node = new TileNode(tile, position);
 
-		final ScaleTransition st = new ScaleTransition(Duration.millis(TRANSITION_SPEED / 2), node);
-		st.setFromX(1f);
-		st.setFromY(1f);
-		st.setToX(1.2f);
-		st.setToY(1.2f);
-		st.setAutoReverse(true);
-		st.setCycleCount(2);
-		st.play();
+		TransitionBuilder.createSequential().setDuration(TRANSITION_SPEED).addScale(1f, 1f, 1.2f, 1.2f, 2, true, node)
+				.build().play();
 
 		showTileNode(tileId, node);
 	}
@@ -163,21 +133,11 @@ public class BoardView extends AnchorPane {
 		for (final Entry<UUID, Node> entry : nodeMap.entrySet()) {
 			final Node node = entry.getValue();
 
-			final ParallelTransition pt = new ParallelTransition();
-
-			final Duration duration = Duration.millis(TRANSITION_SPEED);
-			final TranslateTransition tt = new TranslateTransition(duration, node);
-			tt.setToY(200);
-			tt.play();
-			tt.setInterpolator(Interpolator.EASE_OUT);
-			tt.setOnFinished(e -> getChildren().remove(node));
-
-			final FadeTransition ft = new FadeTransition(duration, node);
-			ft.setToValue(0);
-
-			pt.getChildren().addAll(tt, ft);
-			pt.play();
-
+			final TransitionBuilder transitionBuilder = TransitionBuilder.createParallel()
+					.setDuration(TRANSITION_SPEED);
+			transitionBuilder.addTranslate(0, 200, node, e -> getChildren().remove(node));
+			transitionBuilder.addFade(1, 0, node);
+			transitionBuilder.build().play();
 		}
 		nodeMap.clear();
 	}
