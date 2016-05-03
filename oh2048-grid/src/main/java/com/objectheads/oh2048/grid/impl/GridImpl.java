@@ -119,6 +119,18 @@ public class GridImpl implements Grid {
 		eventDispatcher.fire(eventBuilder.build());
 	}
 
+	@Override
+	public void add(GridPosition gridPosition, int value)
+	{
+		add(gridPosition, new Tile(value));
+	}
+
+	@Override
+	public void add(int row, int column, int value)
+	{
+		add(new GridPosition(row, column), new Tile(value));
+	}
+
 	public void add(final GridPosition gridPosition, final Tile newTile, final EventBuilder eventBuilder)
 	{
 		final VirtualPosition virtualPosition = new VirtualPosition(gridPosition, MoveDirection.LEFT);
