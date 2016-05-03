@@ -6,7 +6,7 @@ import com.objectheads.oh2048.grid.event.MoveTileEvent;
 import com.objectheads.oh2048.grid.event.NewDescendantTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NewTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NoMoreStepsEvent;
-import com.objectheads.oh2048.grid.event.PointsIncreasedEvent;
+import com.objectheads.oh2048.grid.event.ScoreIncreasedEvent;
 import com.objectheads.oh2048.grid.event.TargetReachedEvent;
 
 public interface GridEvent {
@@ -23,7 +23,7 @@ public interface GridEvent {
 
 	void setOnMove(EventHandler<? super MoveEvent> handler);
 
-	void setOnPointsIncreased(EventHandler<? super PointsIncreasedEvent> handler);
+	void setOnScoreIncreased(EventHandler<? super ScoreIncreasedEvent> handler);
 	
 	void setOnTargetReached(EventHandler<? super TargetReachedEvent> handler);
 

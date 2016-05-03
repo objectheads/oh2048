@@ -14,7 +14,7 @@ import com.objectheads.oh2048.grid.event.DeleteTileEvent;
 import com.objectheads.oh2048.grid.event.Event;
 import com.objectheads.oh2048.grid.event.MoveTileEvent;
 import com.objectheads.oh2048.grid.event.NewTileCreateEvent;
-import com.objectheads.oh2048.grid.event.PointsIncreasedEvent;
+import com.objectheads.oh2048.grid.event.ScoreIncreasedEvent;
 
 public class UndoImpl implements UndoService {
 
@@ -22,15 +22,19 @@ public class UndoImpl implements UndoService {
 	private final Stack<Event> events = new Stack<>();
 
 	private int numberOfActions;
+	private GridStatisticsImpl statistics;
+	
 	private boolean enabled = true;
 	private boolean disabledNext = false;
 	private boolean undoOperation = false;
 
-	public UndoImpl(final GridImpl grid)
+	public UndoImpl(final GridImpl grid, GridStatisticsImpl statistics)
 	{
 		this.grid = grid;
+		this.statistics = statistics;
 	}
 
+	@Override
 	public void push(final Event event)
 	{
 		if (checkPushEnabled()) {
@@ -40,11 +44,11 @@ public class UndoImpl implements UndoService {
 			events.push(event);
 		}
 	}
-	
+
 	private boolean checkPushEnabled()
 	{
 
-		boolean isPushEnabled = !disabledNext && !undoOperation && enabled;
+		final boolean isPushEnabled = !disabledNext && !undoOperation && enabled;
 
 		if (disabledNext) {
 			numberOfActions--;
@@ -112,11 +116,14 @@ public class UndoImpl implements UndoService {
 			return;
 		}
 
-		if (event instanceof PointsIncreasedEvent) {
-			final PointsIncreasedEvent pointsIncreasedEvent = (PointsIncreasedEvent)event;
-			EventBuilder eventBuilder = EventBuilder.create();
-			eventBuilder.addPointsIncreasedEvent(pointsIncreasedEvent.getOldPoints(), pointsIncreasedEvent.getOldPoints());
+		if (event instanceof ScoreIncreasedEvent) {
+			final ScoreIncreasedEvent pointsIncreasedEvent = (ScoreIncreasedEvent)event;
+			final EventBuilder eventBuilder = EventBuilder.create();
+			final int score = pointsIncreasedEvent.getNewScore() - pointsIncreasedEvent.getPointsAdded();
+			final int pointsAdded = -1 * pointsIncreasedEvent.getPointsAdded();
+			eventBuilder.addScoreIncreasedEvent(score, pointsAdded);
 			grid.geEventDispatcher().fire(eventBuilder.build());
+			statistics.setScore(score);
 			return;
 		}
 
@@ -129,7 +136,7 @@ public class UndoImpl implements UndoService {
 	}
 
 	@Override
-	public void setEnabled(boolean enabled)
+	public void setEnabled(final boolean enabled)
 	{
 		this.enabled = enabled;
 	}
@@ -147,7 +154,7 @@ public class UndoImpl implements UndoService {
 	}
 
 	@Override
-	public void disableNext(int numberOfActions)
+	public void disableNext(final int numberOfActions)
 	{
 		checkArgument(numberOfActions > 0, "Number of actions must be greater than zero!");
 		this.numberOfActions = numberOfActions;

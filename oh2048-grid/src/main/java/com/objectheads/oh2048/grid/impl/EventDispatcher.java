@@ -10,7 +10,7 @@ import com.objectheads.oh2048.grid.event.MoveTileEvent;
 import com.objectheads.oh2048.grid.event.NewDescendantTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NewTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NoMoreStepsEvent;
-import com.objectheads.oh2048.grid.event.PointsIncreasedEvent;
+import com.objectheads.oh2048.grid.event.ScoreIncreasedEvent;
 import com.objectheads.oh2048.grid.event.TargetReachedEvent;
 
 public class EventDispatcher implements GridEvent {
@@ -23,7 +23,7 @@ public class EventDispatcher implements GridEvent {
 	private EventHandler<? super NoMoreStepsEvent> noMoreStepsEventHandler;
 	private EventHandler<? super TargetReachedEvent> targetReachedEventHandler;
 	private EventHandler<? super NewTileCreateEvent> newTileCreateEventHandler;
-	private EventHandler<? super PointsIncreasedEvent> pointsIncreasedEventHandler;
+	private EventHandler<? super ScoreIncreasedEvent> scoreIncreasedEventHandler;
 	private EventHandler<? super NewDescendantTileCreateEvent> newDescendantTileCreateHandler;
 
 	public EventDispatcher(final UndoService undo)
@@ -68,9 +68,9 @@ public class EventDispatcher implements GridEvent {
 	}
 
 	@Override
-	public void setOnPointsIncreased(final EventHandler<? super PointsIncreasedEvent> handler)
+	public void setOnScoreIncreased(final EventHandler<? super ScoreIncreasedEvent> handler)
 	{
-		this.pointsIncreasedEventHandler = handler;
+		this.scoreIncreasedEventHandler = handler;
 	}
 
 	@Override
@@ -118,8 +118,8 @@ public class EventDispatcher implements GridEvent {
 			return;
 		}
 
-		if (event instanceof PointsIncreasedEvent) {
-			firePointsIncreasedEvent((PointsIncreasedEvent)event);
+		if (event instanceof ScoreIncreasedEvent) {
+			firePointsIncreasedEvent((ScoreIncreasedEvent)event);
 			return;
 		}
 
@@ -179,10 +179,10 @@ public class EventDispatcher implements GridEvent {
 		}
 	}
 
-	private void firePointsIncreasedEvent(final PointsIncreasedEvent event)
+	private void firePointsIncreasedEvent(final ScoreIncreasedEvent event)
 	{
-		if (pointsIncreasedEventHandler != null) {
-			pointsIncreasedEventHandler.handle(event);
+		if (scoreIncreasedEventHandler != null) {
+			scoreIncreasedEventHandler.handle(event);
 		}
 	}
 

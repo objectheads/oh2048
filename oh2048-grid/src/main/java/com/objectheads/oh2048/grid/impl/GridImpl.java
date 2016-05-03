@@ -31,9 +31,9 @@ public class GridImpl implements Grid {
 	public GridImpl(final int M, final boolean disableUndo, final int targetScore)
 	{
 		this.M = M;
-		this.undo = disableUndo ? new NoUndoImpl() : new UndoImpl(this);
 		this.movement = new MovementImpl(this);
 		this.statistics = new GridStatisticsImpl(this);
+		this.undo = disableUndo ? new NoUndoImpl() : new UndoImpl(this, statistics);
 		this.eventDispatcher = new EventDispatcher(undo);
 		this.virtualMatrix = new VirtualMatrix(this, statistics);
 		this.targetScore = targetScore;

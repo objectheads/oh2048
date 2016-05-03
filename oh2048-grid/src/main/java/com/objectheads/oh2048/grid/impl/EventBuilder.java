@@ -10,7 +10,7 @@ import com.objectheads.oh2048.grid.event.MoveTileEvent;
 import com.objectheads.oh2048.grid.event.NewDescendantTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NewTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NoMoreStepsEvent;
-import com.objectheads.oh2048.grid.event.PointsIncreasedEvent;
+import com.objectheads.oh2048.grid.event.ScoreIncreasedEvent;
 import com.objectheads.oh2048.grid.event.TargetReachedEvent;
 
 public class EventBuilder {
@@ -74,9 +74,9 @@ public class EventBuilder {
 		return this;
 	}
 
-	public EventBuilder addPointsIncreasedEvent(final int oldPoints, final int newPoints)
+	public EventBuilder addScoreIncreasedEvent(final int newScore, final int pointsAdded)
 	{
-		final PointsIncreasedEvent event = new PointsIncreasedEvent(oldPoints, newPoints);
+		final ScoreIncreasedEvent event = new ScoreIncreasedEvent(newScore, pointsAdded);
 		add(event);
 		return this;
 	}

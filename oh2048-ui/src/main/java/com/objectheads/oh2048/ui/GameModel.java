@@ -12,7 +12,7 @@ import com.objectheads.oh2048.grid.event.MoveTileEvent;
 import com.objectheads.oh2048.grid.event.NewDescendantTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NewTileCreateEvent;
 import com.objectheads.oh2048.grid.event.NoMoreStepsEvent;
-import com.objectheads.oh2048.grid.event.PointsIncreasedEvent;
+import com.objectheads.oh2048.grid.event.ScoreIncreasedEvent;
 import com.objectheads.oh2048.grid.event.TargetReachedEvent;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -56,7 +56,7 @@ public class GameModel {
 		gridEvents.setOnNewDescendantTileCreate(e -> handleJoinTilesEvent(e));
 		gridEvents.setOnNewTileCreate(e -> handleNewTileCreateEvent(e));
 		gridEvents.setOnMove(e -> handleMoveEventEvent(e));
-		gridEvents.setOnPointsIncreased(e -> handlePointsIncreasedEvent(e));
+		gridEvents.setOnScoreIncreased(e -> handleScoreIncreasedEvent(e));
 		gridEvents.setOnTargetReached(e -> handleTargetReachedEvent(e));
 	}
 
@@ -104,9 +104,9 @@ public class GameModel {
 	{
 	}
 
-	private void handlePointsIncreasedEvent(final PointsIncreasedEvent event)
+	private void handleScoreIncreasedEvent(final ScoreIncreasedEvent event)
 	{
-		score.set(Integer.toString(event.getNewPoints()));
+		score.set(Integer.toString(event.getNewScore()));
 	}
 
 	private void handleTargetReachedEvent(final TargetReachedEvent e)

@@ -56,11 +56,16 @@ public class GridStatisticsImpl implements GridStatistics {
 		return score;
 	}
 
+	protected void setScore(int score)
+	{
+		this.score = score;
+	}
+
 	protected void incrementScore(final int value, final EventBuilder eventBuilder)
 	{
 		newTileCrteated(value);
-		eventBuilder.addPointsIncreasedEvent(score, score + value);
 		score = score + value;
+		eventBuilder.addScoreIncreasedEvent(score, value);
 	}
 
 	@Override
