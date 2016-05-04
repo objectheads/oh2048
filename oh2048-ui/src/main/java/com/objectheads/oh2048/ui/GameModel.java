@@ -77,8 +77,11 @@ public class GameModel {
 
 	public void handleNoMoreSteps(final NoMoreStepsEvent event)
 	{
-		view.gameOver();
-		grid.reset();
+		if (view.gameOver()) {
+			grid.reset();
+		} else {
+			undo.undo();
+		}
 	}
 
 	public void handleNewTileCreateEvent(final NewTileCreateEvent event)

@@ -64,13 +64,42 @@ public class GameView extends AnchorPane {
 		boardView.initialize();
 	}
 
-	public void gameOver()
+	public boolean gameOver()
 	{
-		final Alert alert = new Alert(AlertType.WARNING);
+		final Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle("2048");
-		alert.setHeaderText("Game over");
-		alert.setContentText("You have no more steps.");
-		alert.showAndWait();
+		alert.setHeaderText("Game over!");
+		alert.setContentText("Start a new game or undo last move?");
+
+		final ButtonType buttonTypeUndo = new ButtonType("Undo");
+		final ButtonType buttonTypeNewGame = new ButtonType("New Game");
+
+		alert.getButtonTypes().setAll(buttonTypeUndo, buttonTypeNewGame);
+		
+		final Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == buttonTypeNewGame) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean gameWin()
+	{
+		final Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("2048");
+		alert.setHeaderText("Congratulation! You win the game!");
+		alert.setContentText("Would you like to continue or start a new game?");
+
+		final ButtonType buttonTypeContinue = new ButtonType("Continue");
+		final ButtonType buttonTypeNewGame = new ButtonType("New Game");
+
+		alert.getButtonTypes().setAll(buttonTypeContinue, buttonTypeNewGame);
+
+		final Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == buttonTypeNewGame) {
+			return true;
+		}
+		return false;
 	}
 
 	public void createTileNode(final Tile tile, final GridPosition destinationPosition)
@@ -93,24 +122,6 @@ public class GameView extends AnchorPane {
 		boardView.createDescendantTileNode(tile, destinationPosition);
 	}
 
-	public boolean gameWin()
-	{
-		final Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("2048");
-		alert.setHeaderText("Congratulation! You win the game!");
-		alert.setContentText("Would you like to continue or start a new game?");
-
-		final ButtonType buttonTypeContinue = new ButtonType("Continue");
-		final ButtonType buttonTypeNewGame = new ButtonType("New Game");
-
-		alert.getButtonTypes().setAll(buttonTypeContinue, buttonTypeNewGame);
-
-		final Optional<ButtonType> result = alert.showAndWait();
-		if (result.get() == buttonTypeNewGame) {
-			return true;
-		}
-		return false;
-	}
 
 	public void reset()
 	{
